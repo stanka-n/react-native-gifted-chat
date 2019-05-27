@@ -15,6 +15,15 @@ import { isSameUser, isSameDay } from './utils';
 
 export default class Bubble extends React.Component {
 
+  state = {
+    pressed: false,
+  }
+
+  onPress = () => {
+    const { pressed } = this.state;
+    this.setState({ pressed: !pressed });
+  }
+
   onLongPress = () => {
     if (this.props.onLongPress) {
       this.props.onLongPress(this.context, this.props.currentMessage);
@@ -149,7 +158,7 @@ export default class Bubble extends React.Component {
 
   renderCustomView() {
     if (this.props.renderCustomView) {
-      return this.props.renderCustomView(this.props);
+      return this.props.renderCustomView(this.props, this.state.pressed);
     }
     return null;
   }
@@ -157,32 +166,37 @@ export default class Bubble extends React.Component {
   render() {
     return (
       <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]}>
-        <View
-          style={[
-            styles[this.props.position].wrapper,
-            this.props.wrapperStyle[this.props.position],
-            this.handleBubbleToNext(),
-            this.handleBubbleToPrevious(),
-          ]}
-        >
-          <TouchableWithoutFeedback
-            onLongPress={this.onLongPress}
-            accessibilityTraits="text"
-            {...this.props.touchableProps}
+        <View style={styles.row}>
+          {this.props.position === 'left' && <View style={[styles.triangle, styles[this.props.position].triangle]} />}
+          <View
+            style={[
+              styles[this.props.position].wrapper,
+              this.props.wrapperStyle[this.props.position],
+              this.handleBubbleToNext(),
+              this.handleBubbleToPrevious(),
+            ]}
           >
-            <View>
-              {this.renderCustomView()}
-              {this.renderMessageImage()}
-              {this.renderMessageVideo()}
-              {this.renderMessageText()}
-              <View style={[styles[this.props.position].bottom, this.props.bottomContainerStyle[this.props.position]]}>
-                {this.renderUsername()}
-                {this.renderTime()}
-                {this.renderTicks()}
+            <TouchableWithoutFeedback
+              onPress={this.onPress}
+              onLongPress={this.onLongPress}
+              accessibilityTraits="text"
+              {...this.props.touchableProps}
+            >
+              <View>
+                {this.renderMessageImage()}
+                {this.renderMessageVideo()}
+                {this.renderMessageText()}
+                <View style={[styles[this.props.position].bottom, this.props.bottomContainerStyle[this.props.position]]}>
+                  {this.renderUsername()}
+                  {this.renderTime()}
+                  {this.renderTicks()}
+                </View>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+          </View>
+          {this.props.position === 'right' && <View style={[styles.triangle, styles[this.props.position].triangle]} />}
         </View>
+        {this.renderCustomView()}
       </View>
     );
   }
@@ -212,6 +226,12 @@ const styles = {
       flexDirection: 'row',
       justifyContent: 'flex-start',
     },
+    triangle: {
+      borderBottomColor: '#F3F3F3',
+      transform: [
+        { rotate: '-90deg' }
+      ]
+    },
   }),
   right: StyleSheet.create({
     container: {
@@ -235,6 +255,12 @@ const styles = {
       flexDirection: 'row',
       justifyContent: 'flex-end',
     },
+    triangle: {
+      borderBottomColor: '#4EADE4',
+      transform: [
+        { rotate: '90deg' }
+      ]
+    },
   }),
   tick: {
     fontSize: 10,
@@ -255,6 +281,21 @@ const styles = {
   usernameView: {
     flexDirection: 'row',
     marginHorizontal: 10,
+  },
+  triangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderBottomWidth: 30,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 };
 
