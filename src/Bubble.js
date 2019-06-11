@@ -16,12 +16,33 @@ import { isSameUser, isSameDay } from './utils';
 export default class Bubble extends React.Component {
 
   state = {
-    pressed: false,
+    yOffset: 0,
+    xOffset: 0,
+    elementWidth: 0,
+    elementHeight: 0,
   }
 
+  componentDidMount() {
+    // wait to compute onLayout values.
+    setTimeout(this.getElementPosition, 500);
+  }
+
+  getElementPosition = (event) => {
+    this.container && this.container.measure(
+      (frameOffsetX, frameOffsetY, width, height, pageOffsetX, pageOffsetY) => {
+        this.setState({
+          xOffset: pageOffsetX,
+          yOffset: pageOffsetY,
+          elementWidth: width,
+          elementHeight: height,
+        });
+      }
+    );
+  };
+
   onPress = () => {
-    const { pressed } = this.state;
-    this.setState({ pressed: !pressed });
+    const { onPress, currentMessage } = this.props;
+    onPress(currentMessage, this.state);
   }
 
   onLongPress = () => {
@@ -158,14 +179,14 @@ export default class Bubble extends React.Component {
 
   renderCustomView() {
     if (this.props.renderCustomView) {
-      return this.props.renderCustomView(this.props, this.state.pressed);
+      return this.props.renderCustomView(this.props);
     }
     return null;
   }
 
   render() {
     return (
-      <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]}>
+      <View style={[styles[this.props.position].container, this.props.containerStyle[this.props.position]]} collapsable={false} ref={e => (this.container = e)}>
         <View style={styles.row}>
           {this.props.position === 'left' && <View style={[styles.triangle, styles[this.props.position].triangle]} />}
           <View
@@ -208,6 +229,7 @@ const styles = {
     container: {
       flex: 1,
       alignItems: 'flex-start',
+      position: 'relative',
     },
     wrapper: {
       borderRadius: 15,
@@ -237,6 +259,7 @@ const styles = {
     container: {
       flex: 1,
       alignItems: 'flex-end',
+      position: 'relative',
     },
     wrapper: {
       borderRadius: 15,
