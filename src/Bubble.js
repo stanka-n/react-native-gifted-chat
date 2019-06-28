@@ -15,35 +15,19 @@ import { isSameUser, isSameDay } from './utils';
 
 export default class Bubble extends React.Component {
 
-  state = {
-    yOffset: 0,
-    xOffset: 0,
-    elementWidth: 0,
-    elementHeight: 0,
-  }
-
-  componentDidMount() {
-    // wait to compute onLayout values.
-    setTimeout(this.getElementPosition, 500);
-  }
-
-  getElementPosition = (event) => {
+  onPress = (event) => {
+    const { onPress, currentMessage, position } = this.props;
     this.container && this.container.measure(
       (frameOffsetX, frameOffsetY, width, height, pageOffsetX, pageOffsetY) => {
-        this.setState({
+        onPress(currentMessage, {
           xOffset: pageOffsetX,
           yOffset: pageOffsetY,
           elementWidth: width,
           elementHeight: height,
-        });
+        }, position);
       }
     );
   };
-
-  onPress = () => {
-    const { onPress, currentMessage } = this.props;
-    onPress(currentMessage, this.state);
-  }
 
   onLongPress = () => {
     if (this.props.onLongPress) {
