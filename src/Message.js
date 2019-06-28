@@ -48,7 +48,8 @@ export default class Message extends React.Component {
       next.image !== current.image ||
       next.video !== current.video ||
       next.audio !== current.audio ||
-      nextMessage !== nextPropsMessage
+      nextMessage !== nextPropsMessage ||
+      next.reaction !== current.reaction
     );
   }
 
